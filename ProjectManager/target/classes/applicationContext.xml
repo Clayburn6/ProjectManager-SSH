@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>      
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"      
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+    xmlns:tx="http://www.springframework.org/schema/tx" 
+    xsi:schemaLocation="        
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd    
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd 
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+	<context:component-scan base-package="com.pgb">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+   <!-- 数据源配置 -->
+    <bean id="dataSource"  
+        class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" /> 
+		<property name="url" value="jdbc:mysql://localhost:3306/demo?useUnicode=true&amp;characterEncoding=UTF8&amp;useSSL=true&amp;zeroDateTimeBehavior=convertToNull" /> 
+		<property name="username" value="root" /> 
+		<property name="password" value="123456" /> 
+		<!-- 配置初始化大小、最小、最大 --> 
+		<property name="initialSize" value="20" /> 
+		<property name="minIdle" value="100" /> 
+		<property name="maxActive" value="100" />
+
+		<!-- 配置获取连接等待超时的时间 --> 
+		<property name="maxWait" value="10000" />  
+    </bean>
+        
+    <!-- session工厂 -->   
+    <bean id="sessionFactory"    
+        class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">    
+        <property name="dataSource">    
+            <ref bean="dataSource" />    
+        </property>
+        <property name="packagesToScan" value="com.pgb.entity"/>
+        <property name="hibernateProperties">  
+            <props>  
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>  
+                <prop key="hibernate.show_sql">true</prop>  
+                <prop key="hibernate.format_sql">false</prop>
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
+            </props>  
+        </property>  
+    </bean>
+
+    
+    <!-- 配置事务管理器 -->    
+    <bean id="transactionManager"    
+        class="org.springframework.orm.hibernate3.HibernateTransactionManager">    
+        <property name="sessionFactory" ref="sessionFactory" />    
+    </bean>
+    <!-- 配置hibernate操作模板类 -->    
+	<bean name="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">  
+	     <property name="sessionFactory" ref="sessionFactory"></property>  
+	</bean>
+</beans>
